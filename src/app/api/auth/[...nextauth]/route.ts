@@ -5,6 +5,7 @@ import { Adapter } from "next-auth/adapters";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google"
 import { env } from "@/lib/env";
+import { mergeCart } from "@/lib/db/cart";
 
 export const authOptions: NextAuthOptions = {
     adapter:PrismaAdapter(prisma) as Adapter,
@@ -13,7 +14,20 @@ export const authOptions: NextAuthOptions = {
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET
         })
-    ]
+    ],
+    callbacks:{
+        session({session,user}){
+            session.user.id = user.id
+            return session
+
+        }
+    },
+    events:{
+        async signIn({user}) {
+            await mergeCart(user.id)
+            
+        },
+    }
 }
 
 const handler = NextAuth(authOptions)
