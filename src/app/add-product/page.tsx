@@ -26,7 +26,6 @@ export const metadata = {
         throw new Error("Missing required fields")
     }
 
-
     await prisma.product.create({
         data: {name, description, imageUrl, price}
     })
